@@ -2,15 +2,35 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SalleInfoScript : MonoBehaviour
 {
     public SalleType SalleType;
-    public Quaternion Rotation;
+    [Range(0,4)]
+    public int nbPortes;
+    [HideInInspector]
+    public List<Transform> PortesPos = new List<Transform>();
 
-    public SalleInfoScript()
+    public bool Corner = false;
+
+    /*[Header("Orientation porte")]
+    public bool PorteOuest;
+    public bool PorteEst;
+    public bool PorteNord;
+    public bool PorteSud;*/
+
+    private void Start()
     {
-        Rotation = Quaternion.Euler(0,0, transform.rotation.z);
+        nbPortes = 0;
+        foreach (Transform child in transform)
+        {
+            if(child.CompareTag("Porte"))
+            {
+                nbPortes++;
+                PortesPos.Add(child);
+            }
+        }
     }
 }
 
@@ -20,6 +40,6 @@ public enum SalleType
     Salle11,
     Salle44,
     Couloir14,
-    Couloir24,
+    Couloir18,
     Default,
 }

@@ -8,37 +8,83 @@ using Random = UnityEngine.Random;
 public class GenerateScript : MonoBehaviour
 {
     public Transform SallePos;
-    public List<GameObject> Salle22Prefabs;
-    
+
+    public List<GameObject> SallesPrefabs;
+    public List<GameObject> InterieursPrefab;
+    //public GameObject PortePrefab;
     
     // Start is called before the first frame update
     void Start()
     {
-        foreach (Transform pos in SallePos)
+        foreach(Transform pos in SallePos)
         {
             SalleInfoScript sInfo = pos.GetComponent<SalleInfoScript>();
             int rand = 0;
             GameObject gOPrefab = null;
-            switch (sInfo.SalleType)
+            List<GameObject> PrefabList = new List<GameObject>();
+
+            foreach (GameObject prefab in SallesPrefabs)
             {
-                case SalleType.Salle22:
-                    rand = Random.Range(0, Salle22Prefabs.Count);
-                    gOPrefab = Salle22Prefabs[rand];
-                    break;
-                case SalleType.Salle11:
-                    break;
-                case SalleType.Salle44:
-                    break;
-                case SalleType.Couloir14:
-                    break;
-                case SalleType.Couloir24:
-                    break;
-                case SalleType.Default:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                SalleInfoScript pInfo = prefab.GetComponent<SalleInfoScript>();
+
+                if (pInfo.SalleType == sInfo.SalleType
+                    && sInfo.nbPortes == pInfo.nbPortes
+                    && sInfo.Corner == pInfo.Corner)
+                {
+                    PrefabList.Add(prefab);
+                }
             }
-            Instantiate(gOPrefab, pos.position, sInfo.Rotation,SallePos);
+            
+            if(PrefabList.Count != 0)
+            {
+                rand = Random.Range(0, PrefabList.Count);
+                gOPrefab = PrefabList[rand];
+            }
+
+            if (gOPrefab != null)
+            {
+                GameObject salleInstantiate = Instantiate(gOPrefab, pos.position, pos.rotation);
+
+                List<GameObject> intPrefab = new List<GameObject>();
+                foreach (GameObject prefab in InterieursPrefab)
+                {
+                    SalleType pType = prefab.GetComponent<SalleInfoScript>().SalleType;
+                    if (pType == sInfo.SalleType)
+                    {
+                        intPrefab.Add(prefab);
+                    }
+                }
+                
+                if(intPrefab.Count != 0)
+                {
+                    rand = Random.Range(0, intPrefab.Count);
+
+                    int randRot = Random.Range(0, 5);
+                    Vector3 intRot = Vector3.zero;
+                    bool pass = true;
+                    switch (randRot)
+                    {
+                        case 0 :
+                            break;
+                        case 1 :
+                            intRot = new Vector3(0, 90, 0);
+                            break;
+                        case 2 :
+                            intRot = new Vector3(0, 180, 0);
+                            break;
+                        case 3 :
+                            intRot = new Vector3(0, -90, 0);
+                            break;
+                        case 4 :
+                            pass = false;
+                            break;
+                    }
+                    
+                    if(pass)
+                        Instantiate(intPrefab[rand], pos.position,
+                            Quaternion.Euler(intRot), salleInstantiate.transform);
+                }
+            }
             Destroy(pos.gameObject);
         }
     }
