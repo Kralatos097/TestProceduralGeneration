@@ -41,5 +41,6 @@ public enum SalleType
     Salle44,
     Couloir14,
     Couloir18,
+    Porte,
     Default,
 }
